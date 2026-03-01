@@ -1,0 +1,271 @@
+/* =========================================
+   DOCUMENT GENERATOR CSS (Scoped: DOC_GEN_)
+   ========================================= */
+
+/* --- OVERLAY & MODAL STRUCTURE --- */
+.DOC_GEN_OVERLAY {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(15, 23, 42, 0.85); /* Dark blue tint */
+  z-index: 6000;
+  display: flex;
+  flex-direction: column;
+  animation: docGenFadeIn 0.2s ease-out;
+}
+
+.DOC_GEN_BODY {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* --- TOOLBAR --- */
+.DOC_GEN_TOOLBAR {
+  height: 60px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  z-index: 10;
+}
+
+.DOC_GEN_TOOL_GROUP button {
+  background: none;
+  border: 1px solid #cbd5e1;
+  padding: 5px 12px;
+  margin-right: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #334155;
+  font-size: 1rem;
+}
+.DOC_GEN_TOOL_GROUP button:hover { background-color: #f1f5f9; }
+
+.DOC_GEN_TOOL_ACTIONS { display: flex; gap: 10px; }
+
+.DOC_GEN_BTN_CANCEL {
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: #64748b;
+  cursor: pointer;
+  font-weight: 600;
+}
+.DOC_GEN_BTN_CANCEL:hover { background-color: #f1f5f9; color: #0f172a; }
+
+.DOC_GEN_BTN_SAVE {
+  background-color: #3b82f6;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+.DOC_GEN_BTN_SAVE:hover { background-color: #2563eb; }
+.DOC_GEN_BTN_SAVE:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
+/* --- SIDE PANEL (INPUTS) --- */
+.DOC_GEN_SIDE_PANEL {
+  width: 340px;
+  background-color: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  overflow-y: auto;
+}
+
+.DOC_GEN_PANEL_HEADER {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 10px;
+}
+
+/* Input Group */
+.DOC_GEN_INPUT_GROUP { width: 100%; }
+.DOC_GEN_INPUT_GROUP.RELATIVE { position: relative; }
+
+.DOC_GEN_INPUT_GROUP label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.DOC_GEN_INPUT_GROUP input,
+.DOC_GEN_SELECT {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: white;
+  box-sizing: border-box;
+}
+
+.DOC_GEN_INPUT_GROUP input:focus,
+.DOC_GEN_SELECT:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.DOC_GEN_SEARCH_WRAPPER { position: relative; }
+.DOC_GEN_SEARCH_WRAPPER i {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+/* Info Box */
+.DOC_GEN_INFO_BOX {
+  background-color: #eff6ff;
+  border: 1px solid #dbeafe;
+  padding: 12px;
+  border-radius: 6px;
+  color: #1e3a8a;
+  font-size: 0.9rem;
+}
+
+.DOC_GEN_INFO_BOX.SECONDARY { margin-top: 10px; }
+.DOC_GEN_BLOCK_LABEL { display: block; margin-bottom: 5px; }
+
+/* Dropdown */
+.DOC_GEN_DROPDOWN {
+  position: absolute;
+  top: 100%; left: 0; right: 0;
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  margin-top: 4px;
+  list-style: none;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 50;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.DOC_GEN_DROPDOWN li {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.DOC_GEN_DROPDOWN li:hover { background-color: #f1f5f9; }
+
+.DOC_GEN_RES_NAME { font-weight: 600; font-size: 0.9rem; color: #1e293b; }
+.DOC_GEN_RES_ID { font-size: 0.75rem; color: #64748b; }
+
+.DOC_GEN_DROPDOWN.NO_RESULT { padding: 12px; color: #64748b; text-align: center; }
+
+/* --- PREVIEW AREA (RIGHT SIDE) --- */
+.DOC_GEN_PREVIEW_AREA {
+  flex: 1;
+  background-color: #94a3b8; /* Contrast background for paper */
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* --- A4 PAGE SIMULATION --- */
+.DOC_GEN_A4_PAGE {
+  width: 210mm;
+  min-height: 297mm;
+  background: white;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+  padding: 20mm; /* Standard margins */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.DOC_GEN_A4_HEADER { text-align: center; margin-bottom: 10px; }
+.DOC_GEN_HEADER_TEXT p { margin: 0; font-size: 11pt; font-family: 'Times New Roman', serif; }
+.DOC_GEN_HEADER_TEXT h4 { margin: 5px 0; font-size: 14pt; font-weight: 800; font-family: 'Arial', sans-serif; text-transform: uppercase; }
+.DOC_GEN_OFFICE { font-size: 10pt; font-weight: bold; margin-top: 5px; }
+
+.DOC_GEN_A4_LINE {
+  border: 0;
+  border-top: 2px solid black;
+  margin: 10px 0 30px 0;
+}
+
+.DOC_GEN_TITLE {
+  text-align: center;
+  text-transform: uppercase;
+  font-family: 'Arial', sans-serif;
+  font-size: 18pt;
+  font-weight: 800;
+  text-decoration: underline;
+  margin-bottom: 40px;
+}
+
+.DOC_GEN_A4_CONTENT {
+  font-family: 'Times New Roman', serif;
+  font-size: 12pt;
+  line-height: 1.6;
+  flex: 1;
+  outline: none; /* Hide editable outline */
+}
+
+/* Footer & Signature */
+.DOC_GEN_A4_FOOTER {
+  margin-top: 50px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.DOC_GEN_SIG_BLOCK {
+  text-align: center;
+  width: 200px;
+}
+
+.DOC_GEN_SIG_NAME {
+  margin: 0;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 11pt;
+}
+
+.DOC_GEN_SIG_LINE {
+  height: 1px;
+  background: black;
+  margin: 2px 0;
+}
+
+.DOC_GEN_SIG_ROLE {
+  margin: 0;
+  font-size: 10pt;
+  font-style: italic;
+}
+
+.DOC_GEN_METADATA {
+  position: absolute;
+  bottom: 20mm;
+  left: 20mm;
+  font-size: 8pt;
+  color: #475569;
+  font-family: 'Arial', sans-serif;
+}
+.DOC_GEN_METADATA p { margin: 2px 0; }
+
+@keyframes docGenFadeIn { from { opacity: 0; } to { opacity: 1; } }

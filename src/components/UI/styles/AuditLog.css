@@ -1,0 +1,280 @@
+/* --- 1. BASE LAYOUT --- */
+.SYS_AUDIT_STAGE {
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  background-color: #f8fafc;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #1e293b;
+  box-sizing: border-box;
+}
+
+.SYS_AUDIT_CORE {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* --- 2. HEADER --- */
+.SYS_AUDIT_TOP_BAR {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 16px;
+}
+
+.SYS_AUDIT_TITLES h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.5px;
+}
+
+.SYS_AUDIT_TITLES p {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+  font-weight: 500;
+}
+
+.SYS_AUDIT_ACTION_FLEX {
+  display: flex;
+  gap: 12px;
+}
+
+.SYS_AUDIT_PRIMARY_BTN {
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.SYS_AUDIT_PRIMARY_BTN:hover:not(:disabled) { background: #334155; }
+.SYS_AUDIT_PRIMARY_BTN:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.SYS_AUDIT_SEC_BTN {
+  background: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.SYS_AUDIT_SEC_BTN:hover:not(:disabled) { background: #f1f5f9; border-color: #94a3b8; }
+
+/* --- 3. METRICS GRID --- */
+.SYS_AUDIT_METRICS_GRID {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.SYS_AUDIT_METRIC_CARD {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 20px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.SYS_AUDIT_METRIC_CARD.SYS_SELECTED {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  box-shadow: inset 4px 0 0 0 #3b82f6;
+}
+
+.SYS_METRIC_VAL {
+  font-size: 2rem;
+  font-weight: 900;
+  font-family: monospace;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.SYS_METRIC_LBL {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #64748b;
+}
+
+/* --- 4. DATAGRID WRAPPER --- */
+.SYS_AUDIT_DATAGRID {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* --- 5. TOOLBAR --- */
+.SYS_AUDIT_TOOLBAR {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  border-bottom: 1px solid #cbd5e1;
+  padding: 0 16px;
+  height: 50px;
+}
+
+.SYS_AUDIT_TABS {
+  display: flex;
+  height: 100%;
+}
+
+.SYS_TAB_BTN {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 0 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.SYS_TAB_BTN.SYS_TAB_ACTIVE {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+.SYS_AUDIT_SEARCH_FLEX {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.SYS_AUDIT_DATE_BOX {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+.SYS_AUDIT_DATE_BOX input {
+  border: none;
+  outline: none;
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+.SYS_AUDIT_DATE_BOX button {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+.SYS_AUDIT_SEARCH_BOX {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 4px 12px;
+}
+
+.SYS_AUDIT_SEARCH_BOX i { color: #94a3b8; font-size: 0.8rem; }
+.SYS_AUDIT_SEARCH_BOX input { border: none; outline: none; font-size: 0.85rem; width: 220px; }
+
+.SYS_PULSE_IND {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #10b981;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+/* --- 6. TABLE STYLING --- */
+.SYS_AUDIT_TABLE_SCROLL { overflow-x: auto; max-height: 600px; }
+
+.SYS_AUDIT_TABLE {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.SYS_AUDIT_TABLE th {
+  background: #f1f5f9;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #475569;
+  padding: 12px 16px;
+  border-bottom: 1px solid #cbd5e1;
+  border-right: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+}
+
+.SYS_AUDIT_TABLE th:last-child { border-right: none; }
+
+.SYS_AUDIT_TABLE td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.SYS_AUDIT_TABLE td:last-child { border-right: none; }
+.SYS_AUDIT_TABLE tbody tr:hover { background: #f8fafc; }
+
+/* Utility Table Classes */
+.SYS_TXT_RIGHT { text-align: right; }
+.SYS_FWM { font-family: monospace; font-weight: 600; color: #475569; }
+.SYS_TXT_BOLD { font-weight: 600; color: #0f172a; }
+.SYS_TXT_SUB { color: #64748b; font-size: 0.85rem; max-width: 250px; }
+.SYS_EMPTY_ROW { text-align: center; color: #94a3b8; font-style: italic; padding: 40px !important; }
+
+/* Badges & Hashes */
+.SYS_BADGE {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.SYS_B_VERIFIED { background: #d1fae5; color: #047857; border: 1px solid #a7f3d0; }
+
+.SYS_HASH_TRUNCATE {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  display: inline-block;
+  cursor: help;
+}

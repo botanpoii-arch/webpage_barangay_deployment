@@ -1,0 +1,165 @@
+/* src/components/UI/styles/Frame.css */
+
+/* --- 1. THEME VARIABLES (Engineers Hill Standard) --- */
+:root {
+  /* White Mode */
+  --L-bg: #ffffff;
+  --L-border: #e2e8f0;
+  --CONTENT-bg: #f8fafc;
+  --TEXT-main: #1e293b; /* Deep Slate for visibility */
+  --TEXT-sub: #64748b;
+  --color-brand: #3b82f6;
+  
+  /* Layout Dimensions */
+  --L-width: 260px;
+  --L-header-h: 70px;
+}
+
+/* Dark Mode Overrides (Triggered by Profile.tsx) */
+[data-theme='dark'] {
+  --L-bg: #1e293b;
+  --L-border: #334155;
+  --CONTENT-bg: #0f172a;
+  --TEXT-main: #f8fafc; /* White text for visibility */
+  --TEXT-sub: #94a3b8;
+}
+
+/* --- 2. GLOBAL RESET --- */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--CONTENT-bg);
+  color: var(--TEXT-main);
+  font-family: 'Inter', sans-serif;
+  overflow: hidden; 
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* --- 3. THE "L-FRAME" GEOMETRY --- */
+.FRAME_WRAPPER {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* VERTICAL ARM (Sidebar) */
+.FRAME_SIDEBAR {
+  width: var(--L-width);
+  height: 100vh;
+  background-color: var(--L-bg);
+  border-right: 1px solid var(--L-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+/* MAIN COLUMN (Topbar + Content) */
+.FRAME_MAIN_COLUMN {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-width: 0;
+}
+
+/* HORIZONTAL ARM (Topbar) */
+.FRAME_TOPBAR {
+  height: var(--L-header-h);
+  background-color: var(--L-bg);
+  border-bottom: 1px solid var(--L-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+/* --- 4. TOPBAR USER INFO (Fixed Stacking) --- */
+.FRAME_USER {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.FRAME_USER_TEXT {
+  display: flex;
+  flex-direction: column; /* FIX: Name on top of Role */
+  text-align: right;
+  line-height: 1.2;
+}
+
+.FRAME_USER_NAME {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--TEXT-main);
+}
+
+.FRAME_USER_ROLE {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--TEXT-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* --- 5. SIDEBAR ELEMENTS --- */
+.FRAME_LOGO_AREA {
+  height: var(--L-header-h);
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid var(--L-border);
+}
+
+.FRAME_LOGO_TEXT {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--TEXT-main);
+  margin-left: 10px;
+}
+
+.FRAME_NAV_AREA {
+  flex: 1;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.FRAME_MENU_ITEM {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: var(--TEXT-sub);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.FRAME_MENU_ACTIVE {
+  background-color: var(--TEXT-main) !important;
+  color: var(--L-bg) !important;
+}
+
+/* --- 6. INNER CONTENT AREA --- */
+.FRAME_CONTENT_AREA {
+  flex: 1;
+  background-color: var(--CONTENT-bg);
+  overflow-y: auto; 
+  width: 100%;
+}
+
+.TB_LOGOUT_BTN {
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  color: var(--TEXT-sub);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--L-border);
+  border-radius: 6px;
+  font-weight: 700;
+}

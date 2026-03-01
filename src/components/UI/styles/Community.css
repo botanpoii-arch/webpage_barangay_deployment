@@ -1,0 +1,240 @@
+/* --- PROFESSIONAL PORTAL: ULTRA-COMPACT EDITION --- */
+:root {
+  --P-bg: #f8fafc;
+  --P-white: #ffffff;
+  --P-cobalt: #3b5998;
+  --P-cobalt-light: #eff6ff;
+  --P-emerald: #10b981;
+  --P-text-dark: #0f172a;
+  --P-text-muted: #64748b;
+  --P-border: #e2e8f0;
+}
+
+/* --- 1. CORE CANVAS --- */
+.CM_PAGE_WRAPPER {
+  width: 100%;
+  height: 100vh;
+  background-color: var(--P-bg);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.CM_PAGE_STAGE {
+  width: 100%;
+  min-height: 1980px; /* Forced vertical span per previous requirement */
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- 2. SLIM NAVBAR --- */
+.CM_NAV_MAIN {
+  background: var(--P-white);
+  padding: 0.4rem 8%;           /* Aggressively slimmed navbar */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid var(--P-border);
+}
+
+.CM_NAV_LEFT { display: flex; align-items: center; gap: 8px; }
+.CM_LOGO_SHIELD { font-size: 1.3rem; color: var(--P-cobalt); }
+.CM_BRAND_INFO strong { display: block; color: var(--P-text-dark); font-size: 0.9rem; }
+.CM_BRAND_INFO span { font-size: 0.7rem; color: var(--P-text-muted); }
+
+.CM_NAV_RIGHT { display: flex; align-items: center; gap: 1rem; }
+
+.CM_EXIT_LINK { 
+  background: var(--P-cobalt-light); 
+  border: 1px solid #dbeafe;
+  cursor: pointer; 
+  color: var(--P-cobalt);
+  font-weight: 700; 
+  font-size: 0.75rem; 
+  display: flex; 
+  align-items: center; 
+  gap: 5px;
+  padding: 0.4rem 1rem; 
+  border-radius: 4px; 
+}
+
+.CM_ONLINE_BADGE {
+  background: var(--P-emerald); 
+  color: white; 
+  padding: 0.25rem 0.6rem;
+  border-radius: 50px; 
+  font-weight: 700; 
+  font-size: 0.65rem;
+  display: flex; 
+  align-items: center; 
+  gap: 5px;
+}
+
+.CM_DOT { width: 5px; height: 5px; background: white; border-radius: 50%; }
+
+/* --- 3. ULTRA-COMPACT HERO (REDUCED VERTICAL FOOTPRINT) --- */
+.CM_HERO_HERO {
+  padding: 1.5rem 2rem;         /* Massive height reduction */
+  text-align: center;
+  background: linear-gradient(180deg, #f0f7ff 0%, var(--P-bg) 100%);
+}
+
+.CM_HERO_HERO h1 { 
+  font-size: 1.85rem;           /* Scaled down text (minus 4 size) */
+  font-weight: 800; 
+  color: var(--P-text-dark); 
+  letter-spacing: -0.02em;
+  margin: 0 0 0.25rem 0; 
+}
+
+.CM_HERO_HERO p { 
+  font-size: 0.95rem; 
+  color: var(--P-text-muted); 
+  margin: 0;
+}
+
+/* --- 4. CONDENSED SIGN IN SECTION --- */
+.CM_SIGNIN_SECTION {
+  background: var(--P-white);
+  border-top: 1px solid var(--P-border);
+  border-bottom: 1px solid var(--P-border);
+  padding: 4rem 2rem;         /* Tightened padding to bring up announcements */
+  text-align: center;
+}
+
+.CM_SIGNIN_CONTENT h2 { 
+  font-size: 1.6rem;            /* Reduced text size */
+  font-weight: 900; 
+  margin: 0 0 0.5rem 0; 
+}
+
+.CM_SIGNIN_CONTENT p { 
+  color: var(--P-text-muted); 
+  font-size: 0.9rem; 
+  margin-bottom: 1rem; 
+}
+
+.CM_LOGIN_TRIGGER_BTN {
+  background-color: var(--P-cobalt);
+  color: white;
+  border: none;
+  padding: 0.75rem 2.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.CM_LOGIN_TRIGGER_BTN:hover { background-color: #2d4373; }
+
+/* --- 5. LATEST ANNOUNCEMENTS (NOW VISIBLE EARLIER) --- */
+.CM_ANNOUNCEMENT_SECTION { 
+  padding: 2rem 10% 8rem 10%;   /* Reduced top padding */
+  background-color: var(--P-bg); 
+  flex-grow: 1; 
+}
+
+.CM_ANNOUNCEMENT_HEADER h2 { 
+  font-size: 1.5rem;            /* Refined text size */
+  font-weight: 800; 
+  margin: 0 0 0.25rem 0; 
+}
+
+.CM_ANNOUNCEMENT_HEADER p { 
+  color: var(--P-text-muted); 
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem; 
+}
+
+.CM_FILTER_BAR { 
+  display: flex; 
+  gap: 0.5rem; 
+  overflow-x: auto; 
+  padding-bottom: 0.75rem; 
+  border-bottom: 1px solid var(--P-border); 
+  margin-bottom: 2rem; 
+}
+
+.CM_FILTER_TAB {
+  background: var(--P-white); 
+  border: 1px solid var(--P-border); 
+  padding: 0.4rem 1rem;
+  border-radius: 6px; 
+  font-weight: 700; 
+  font-size: 0.75rem; 
+  color: var(--P-text-muted);
+  cursor: pointer; 
+}
+
+.CM_FILTER_TAB.ACTIVE { 
+  background: var(--P-cobalt-light); 
+  border-color: var(--P-cobalt); 
+  color: var(--P-cobalt); 
+}
+
+/* --- 6. ANNOUNCEMENT GRID --- */
+.CM_ANNOUNCEMENT_GRID { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+  gap: 2rem; 
+}
+
+.CM_NEWS_ITEM {
+  background: var(--P-white); 
+  border: 1px solid var(--P-border); 
+  border-radius: 12px;
+  overflow: hidden; 
+  cursor: pointer; 
+  transition: transform 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.CM_NEWS_ITEM:hover { transform: translateY(-4px); }
+
+.CM_NEWS_PREVIEW_IMG { 
+  height: 160px;                /* Reduced image height */
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 2rem; 
+  color: rgba(0,0,0,0.05); 
+}
+
+.CM_NEWS_BODY { padding: 1.25rem; }
+.CM_NEWS_META { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+.CM_NEWS_DATE { font-size: 0.7rem; font-weight: 800; color: var(--P-cobalt); }
+.CM_NEWS_CAT { font-size: 0.65rem; text-transform: uppercase; font-weight: 800; color: var(--P-text-muted); }
+
+.CM_NEWS_BODY h4 { 
+  font-size: 1.15rem;           /* Refined title size */
+  font-weight: 800; 
+  margin-bottom: 0.5rem; 
+}
+
+.CM_NEWS_BODY p { 
+  font-size: 0.85rem; 
+  color: var(--P-text-muted); 
+  line-height: 1.4; 
+  margin-bottom: 1.25rem; 
+}
+
+.CM_NEWS_LINK { 
+  background: #f1f5f9; 
+  border: none; 
+  color: var(--P-text-dark); 
+  font-weight: 700; 
+  padding: 0.5rem 1rem; 
+  border-radius: 6px; 
+  font-size: 0.8rem;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .CM_HERO_HERO { padding: 2rem 1rem; }
+  .CM_HERO_HERO h1 { font-size: 1.5rem; }
+  .CM_ANNOUNCEMENT_GRID { grid-template-columns: 1fr; }
+}
