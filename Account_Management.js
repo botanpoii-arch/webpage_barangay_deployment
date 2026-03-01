@@ -28,7 +28,35 @@ export const AccountManagementRouter = (router, supabase) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      res.status(200).json(data);
+
+      // --- THE FIX: FORMAT THE DATA BEFORE SENDING ---
+      // We process the data here to guarantee the frontend receives the actual name
+      const formattedData = data.map(acc => {
+        let actualName = 'System Administrator'; // Fallback if no profile is linked
+
+        // 1. Check if the account is linked to an Official
+        if (acc.officials) {
+          // Handle Supabase object/array quirks
+          const officialData = Array.isArray(acc.officials) ? acc.officials[0] : acc.officials;
+          if (officialData && officialData.full_name) {
+            actualName = officialData.full_name;
+          }
+        } 
+        // 2. Check if the account is linked to a Resident
+        else if (acc.profile) {
+          const profileData = Array.isArray(acc.profile) ? acc.profile[0] : acc.profile;
+          if (profileData && (profileData.first_name || profileData.last_name)) {
+            actualName = `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim();
+          }
+        }
+
+        return {
+          ...acc,
+          profileName: actualName // The React frontend will read this exact property!
+        };
+      });
+
+      res.status(200).json(formattedData);
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
@@ -37,7 +65,6 @@ export const AccountManagementRouter = (router, supabase) => {
   // ==========================================
   // 2. FORCE PASSWORD RESET
   // ==========================================
-  // Endpoint updated to explicitly use the accountId matching the frontend payload
   router.patch('/accounts/reset/:accountId', async (req, res) => {
     try {
       const { password } = req.body;
