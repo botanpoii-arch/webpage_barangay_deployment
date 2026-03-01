@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import Community_Preview, { NewsItem } from '../forms/Community_preview';
+import Community_Preview, { type NewsItem } from '../forms/Community_preview';
 import CommunityLoginModal from '../buttons/Community_login_modal';
 import './styles/Community.css';
 

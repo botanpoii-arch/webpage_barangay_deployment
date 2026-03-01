@@ -51,7 +51,7 @@ const App: React.FC = () => {
     // We don't need a timer if the user is already on the login page
     if (currentView === 'login') return;
 
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     const resetTimer = () => {
       if (timeoutId) clearTimeout(timeoutId);
@@ -102,7 +102,7 @@ const App: React.FC = () => {
 
       {/* PORTAL: FULL ADMIN SYSTEM */}
       {currentView === 'admin' && (
-        <Dashboard onLogout={handleLogout} /> 
+        <Dashboard onLogout={handleLogout} user={null} /> 
       )}
 
       {/* PORTAL: PUBLIC COMMUNITY VIEW */}

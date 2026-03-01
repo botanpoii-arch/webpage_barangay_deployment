@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { IDocRequest } from '../buttons/Community_Document_Request'; // Import interface from parent
-import './styles/Document_view.css'; // Import specific styles for the modal
+// 1. Removed 'React' to fix the "value is never read" error
+import { useState } from 'react';
+// 2. Added curly braces (ensure you added 'export' to the interface in the other file)
+import { IDocRequest } from '../buttons/Community_Document_Request'; 
+import './styles/Document_view.css';
 
 interface Props {
   isOpen: boolean;
@@ -26,7 +28,7 @@ export default function Document_view({ isOpen, onClose, onUpdate, data }: Props
       });
 
       if (res.ok) {
-        onUpdate(); // Trigger refresh in parent
+        onUpdate(); 
       } else {
         alert('Failed to update status.');
       }
@@ -51,7 +53,6 @@ export default function Document_view({ isOpen, onClose, onUpdate, data }: Props
     <div className="DOC_VIEW_OVERLAY">
       <div className="DOC_VIEW_MODAL">
         
-        {/* HEADER */}
         <div className="DOC_VIEW_HEADER">
           <div>
             <span className="DOC_VIEW_REF">{data.referenceNo}</span>
@@ -60,9 +61,7 @@ export default function Document_view({ isOpen, onClose, onUpdate, data }: Props
           <button className="DOC_VIEW_CLOSE" onClick={onClose}>&times;</button>
         </div>
 
-        {/* BODY - FORM STYLE LAYOUT */}
         <div className="DOC_VIEW_BODY">
-          
           <div className="DOC_VIEW_STATUS_BAR" style={{borderColor: getStatusColor(data.status)}}>
             <span style={{color: getStatusColor(data.status)}}>CURRENT STATUS</span>
             <strong style={{color: getStatusColor(data.status)}}>{data.status.toUpperCase()}</strong>
@@ -92,12 +91,15 @@ export default function Document_view({ isOpen, onClose, onUpdate, data }: Props
 
           <div className="DOC_VIEW_FIELD">
             <label>Purpose</label>
-            <textarea readOnly value={data.purpose === 'Other' ? data.otherPurpose : data.purpose} rows={3}></textarea>
+            {/* Standardized purpose logic */}
+            <textarea 
+               readOnly 
+               value={data.purpose === 'OTHER' ? data.otherPurpose : data.purpose} 
+               rows={3}
+            ></textarea>
           </div>
-
         </div>
 
-        {/* ACTION FOOTER */}
         <div className="DOC_VIEW_FOOTER">
           {data.status === 'Pending' && (
             <>
@@ -124,7 +126,6 @@ export default function Document_view({ isOpen, onClose, onUpdate, data }: Props
             </div>
           )}
         </div>
-
       </div>
     </div>
   );

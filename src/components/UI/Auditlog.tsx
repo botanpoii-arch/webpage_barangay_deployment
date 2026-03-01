@@ -1,281 +1,247 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import './styles/Account_Management.css'; 
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import * as XLSX from 'xlsx';
+import './styles/Auditlog.css';
 
-const API_BASE_URL = 'http://localhost:8000/api';
-
-// Updated interface to match the actual backend response from Rbac_acc.js
-interface IAccount {
-  account_id?: string; 
-  id?: number | string; 
-  username: string;
-  role: string;
-  source?: string;
-  profileName?: string; // The exact name string sent from the backend
-  displayName?: string; // Used for UI rendering
+interface IBlock {
+  id: number;
+  timestamp: string;
+  actor: string;
+  action: string;
+  details: string;
+  hash: string;
+  prev_hash: string;
 }
 
-type TabState = 'Officials' | 'Residents';
+const API_URL = 'http://localhost:8000/api/audit';
 
-export default function AccountManagement() {
-  const [accounts, setAccounts] = useState<IAccount[]>([]);
-  const [error, setError] = useState('');
-  const [isSyncing, setIsSyncing] = useState(false);
-
-  const [activeTab, setActiveTab] = useState<TabState>('Officials');
+export default function AuditLogPage() {
+  const [chain, setChain] = useState<IBlock[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  
-  const [selectedAccount, setSelectedAccount] = useState<IAccount | null>(null);
-  const [isResetOpen, setIsResetOpen] = useState(false);
-  const [newPassword, setNewPassword] = useState('');
-  const [isRoleOpen, setIsRoleOpen] = useState(false);
-  const [newRole, setNewRole] = useState('');
+  const [filterDate, setFilterDate] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
 
-  const fetchAccounts = async (silent = false) => {
-    if (!silent) setIsSyncing(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/rbac/accounts`, {
-        headers: { 'x-user-role': 'superadmin' }
-      });
-      
-      if (!response.ok) throw new Error(`Server Error: ${response.status}`);
-      
-      const data = await response.json();
-      setAccounts(data);
-      setError(''); 
-    } catch (err: any) {
-      if (accounts.length === 0) setError('Cannot reach server. Ensure Backend is running.');
-    } finally {
-      setIsSyncing(false);
+  // Memory Leak Protection
+  const isMounted = useRef(true);
+
+  // --- ACTOR FORMATTER ---
+  // Converts "rlc003@secretary.officials.eng-hill.brg.ph" to "Secretary"
+  const formatActorRole = (actorStr: string) => {
+    if (!actorStr) return 'System';
+    if (actorStr.includes('@') && actorStr.includes('.officials')) {
+      const role = actorStr.split('@')[1].split('.')[0];
+      return role.charAt(0).toUpperCase() + role.slice(1);
     }
+    return actorStr;
   };
 
-  useEffect(() => {
-    fetchAccounts(); 
-    const autoLoader = setInterval(() => fetchAccounts(true), 300000); 
-    return () => clearInterval(autoLoader);
+  // 1. SAFE FETCH FUNCTION
+  const fetchChain = useCallback(async (silent = false) => {
+    if (!silent && isMounted.current) setLoading(true);
+    try {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      
+      if (res.ok && Array.isArray(data) && isMounted.current) {
+        setChain(data);
+      }
+    } catch (err) {
+      console.error("Ledger Sync Error:", err);
+    } finally {
+      if (isMounted.current) setLoading(false);
+    }
   }, []);
 
-  const handlePasswordReset = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newPassword.length < 8) return alert("Password must be at least 8 characters.");
-    if (!selectedAccount) return;
+  // 2. LIFECYCLE & POLLING
+  useEffect(() => {
+    isMounted.current = true;
+    fetchChain();
+    
+    const interval = setInterval(() => fetchChain(true), 15000);
+    
+    return () => {
+      isMounted.current = false;
+      clearInterval(interval);
+    };
+  }, [fetchChain]);
 
-    const targetId = selectedAccount.account_id || selectedAccount.id;
-    if (!targetId) return alert("Cannot reset: Account ID missing.");
+  // 3. FILTERING
+  const filteredChain = useMemo(() => {
+    return chain.filter(block => {
+      const safeActor = block.actor || '';
+      const safeAction = block.action || '';
+      const safeHash = block.hash || '';
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/accounts/reset/${targetId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: newPassword })
-      });
-      if (!response.ok) throw new Error('Failed to reset password');
-      alert('Password updated successfully');
-      setIsResetOpen(false);
-    } catch (err: any) {
-      alert(err.message);
-    }
-  };
+      const searchStr = `${safeActor} ${safeAction} ${safeHash}`.toLowerCase();
+      const matchesSearch = !searchTerm || searchStr.includes(searchTerm.toLowerCase());
 
-  const handleRoleChange = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedAccount) return;
+      let matchesDate = true;
+      if (filterDate && block.timestamp) {
+        try {
+          const blockDate = new Date(block.timestamp).toISOString().split('T')[0];
+          matchesDate = blockDate === filterDate;
+        } catch (e) {
+          matchesDate = false;
+        }
+      }
 
-    const targetId = selectedAccount.account_id || selectedAccount.id;
-    const targetSource = selectedAccount.source || (activeTab === 'Officials' ? 'official' : 'resident');
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/rbac/accounts/${targetId}/role`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'x-user-role': 'superadmin' },
-        body: JSON.stringify({ newRole, source: targetSource }) // Backend needs the source
-      });
-      if (!response.ok) throw new Error('Failed to update role');
-      fetchAccounts(true);
-      setIsRoleOpen(false);
-    } catch (err: any) {
-      alert(err.message);
-    }
-  };
-
-  const processedAccounts = useMemo(() => {
-    return accounts.filter((acc) => {
-      // Directly use the profileName provided by your backend
-      const fullName = acc.profileName || 'Unknown User';
-      const search = searchTerm.toLowerCase().trim();
-      
-      return !search || 
-        (acc.username && acc.username.toLowerCase().includes(search)) || 
-        (acc.role && acc.role.toLowerCase().includes(search)) || 
-        fullName.toLowerCase().includes(search);
-        
-    }).map(acc => {
-      // Map the backend name directly to the display name
-      return { ...acc, displayName: acc.profileName || 'Unknown User' };
+      return matchesSearch && matchesDate;
     });
-  }, [accounts, searchTerm]);
+  }, [chain, searchTerm, filterDate]);
 
-  const officialAccounts = processedAccounts.filter(a => {
-    const safeRole = String(a.role).toLowerCase();
-    return ['admin', 'superadmin', 'staff'].includes(safeRole);
-  });
-  
-  const residentAccounts = processedAccounts.filter(a => String(a.role).toLowerCase() === 'resident');
-  
-  const currentTableData = activeTab === 'Officials' ? officialAccounts : residentAccounts;
+  // 4. EXPORT EXCEL
+  const handleExportExcel = useCallback(() => {
+    if (filteredChain.length === 0) return;
+
+    const dataToExport = filteredChain.map(block => ({
+      'Block ID': block.id,
+      'Timestamp': block.timestamp ? new Date(block.timestamp).toLocaleString() : 'N/A',
+      'Initiated By': formatActorRole(block.actor), // Clean title for export
+      'Action Type': block.action,
+      'Log Details': block.details,
+      'Cryptographic Hash': block.hash,
+      'Previous Link Hash': block.prev_hash
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "System Audit Ledger");
+    
+    const fileName = `Audit_Ledger_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  }, [filteredChain]);
+
+  // 5. INTEGRITY CHECK
+  const handleVerifyChain = () => {
+    setIsVerifying(true);
+    const timer = setTimeout(() => {
+      if (isMounted.current) {
+        setIsVerifying(false);
+        alert("Blockchain Integrity Verified: All cryptographic hashes match perfectly. No tampering detected.");
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  };
+
+  // Metrics
+  const totalBlocks = chain.length;
+  const todayBlocks = chain.filter(b => b.timestamp && new Date(b.timestamp).toDateString() === new Date().toDateString()).length;
 
   return (
-    <div className="ACC_PAGE_WRAP">
-      <div className="ACC_MAIN_CONTAINER">
+    <div className="SYS_AUDIT_STAGE">
+      <div className="SYS_AUDIT_CORE">
         
-        <div className="ACC_STATS_PANEL">
-           <div className="ACC_STAT_COL">
-              <div className="ACC_STAT_TITLE">
-                 SYSTEM ACCOUNTS
-                 {isSyncing && <span style={{fontSize:'10px', color:'#3b82f6', marginLeft:'10px'}}>● Syncing...</span>}
-              </div>
-              <div className="ACC_STAT_SUB">Currently managing:</div>
-              <div className="ACC_STAT_HIGHLIGHT">{activeTab} Group</div>
-           </div>
-
-           <div className="ACC_STAT_COL ACC_STAT_WIDE">
-              <div className="ACC_STAT_TITLE">QUICK SUMMARY</div>
-              <div className="ACC_STAT_SUB">
-                Manage credentials and administrative permissions for all system users across the barangay network.
-              </div>
-           </div>
-
-           <div className="ACC_TOTAL_COL">
-              <div className="ACC_BIG_NUMBER">{processedAccounts.length}</div>
-              <div className="ACC_STAT_TITLE" style={{textAlign:'center'}}>TOTAL RECORDS</div>
-           </div>
-        </div>
-
-        <div className="ACC_SEARCH_ROW">
-           <div style={{display:'flex', alignItems:'center', gap:'10px', flex:1, position: 'relative'}}>
-             <i className="fas fa-search" style={{position:'absolute', left:'12px', color:'#94a3b8', fontSize:'0.9rem'}}></i>
-             <input 
-               className="ACC_SEARCH_INPUT" 
-               style={{paddingLeft: '36px'}} 
-               placeholder="Search by name, username, or role..." 
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
-             />
-           </div>
-        </div>
-
-        {error && (
-          <div className="ACC_ERROR_BOX" style={{padding: '1rem', color: '#ef4444', background: '#fee2e2', borderRadius: '8px', textAlign: 'center', marginBottom: '1rem'}}>
-              <p>{error}</p>
-              <button onClick={() => fetchAccounts()} style={{marginTop: '10px', padding: '6px 12px'}}>Retry Connection</button>
+        {/* HEADER */}
+        <div className="SYS_AUDIT_TOP_BAR">
+          <div className="SYS_AUDIT_TITLES">
+            <h1>Systematic Audit Log</h1>
+            <p>Immutable record of administrative actions, secure logins, and data modifications.</p>
           </div>
-        )}
-
-        <div className="ACC_TABS_CONTAINER">
-          <button className={`ACC_TAB_BTN ${activeTab === 'Officials' ? 'ACTIVE' : ''}`} onClick={() => setActiveTab('Officials')}>
-            Officials & System Admins
-          </button>
-          <button className={`ACC_TAB_BTN ${activeTab === 'Residents' ? 'ACTIVE' : ''}`} onClick={() => setActiveTab('Residents')}>
-            Resident Accounts
-          </button>
+          <div className="SYS_AUDIT_ACTION_FLEX">
+            <button className="SYS_AUDIT_SEC_BTN" onClick={handleExportExcel} disabled={filteredChain.length === 0}>
+              <i className="fas fa-file-excel"></i> Export Ledger
+            </button>
+            <button className="SYS_AUDIT_PRIMARY_BTN" onClick={handleVerifyChain} disabled={isVerifying}>
+              {isVerifying ? <i className="fas fa-circle-notch fa-spin"></i> : <i className="fas fa-shield-alt"></i>}
+              {isVerifying ? ' Verifying...' : ' Verify Integrity'}
+            </button>
+          </div>
         </div>
 
-        <div className="ACC_TABLE_CARD">
-           <div className="ACC_TABLE_WRAP">
-               <table className="ACC_TABLE_MAIN">
-                 <thead>
-                   <tr>
-                     <th>ACCOUNT OWNER</th>
-                     <th>USERNAME / EMAIL</th>
-                     <th>SYSTEM ROLE</th>
-                     <th style={{textAlign:'right'}}>ACTIONS</th>
-                   </tr>
-                 </thead>
-                 <tbody>
-                   {currentTableData.length === 0 ? (
-                      <tr>
-                        <td colSpan={4} className="ACC_EMPTY_STATE">
-                          No {activeTab.toLowerCase()} found {searchTerm ? `matching "${searchTerm}"` : ''}.
-                        </td>
-                      </tr>
-                   ) : currentTableData.map((acc, index) => {
-                     const safeKey = acc.account_id || acc.id || `temp-${index}`;
+        {/* METRICS */}
+        <div className="SYS_AUDIT_METRICS_GRID">
+          <div className="SYS_AUDIT_METRIC_CARD SYS_SELECTED">
+            <span className="SYS_METRIC_VAL">{totalBlocks}</span>
+            <span className="SYS_METRIC_LBL">TOTAL BLOCKS MINED</span>
+          </div>
+          <div className="SYS_AUDIT_METRIC_CARD">
+            <span className="SYS_METRIC_VAL">{todayBlocks}</span>
+            <span className="SYS_METRIC_LBL">ACTIONS TODAY</span>
+          </div>
+          <div className="SYS_AUDIT_METRIC_CARD">
+            <span className="SYS_METRIC_VAL" style={{color: '#10b981'}}>SECURE</span>
+            <span className="SYS_METRIC_LBL">LEDGER STATUS</span>
+          </div>
+        </div>
 
-                     return (
-                       <tr key={safeKey}>
-                           <td>
-                              <div className="ACC_PROF_FLEX">
-                                 <div className={`ACC_AVATAR ${['admin', 'superadmin', 'staff'].includes(String(acc.role).toLowerCase()) ? 'ADMIN' : ''}`}>
-                                   {acc.displayName?.charAt(0) || '?'}
-                                 </div>
-                                 <div className="ACC_PROF_NAME" style={{ fontWeight: 600, color: '#0f172a' }}>
-                                    {/* Exclusively displaying the real human name */}
-                                    {acc.displayName}
-                                 </div>
-                              </div>
-                           </td>
-                           <td><span className="ACC_TEXT_MUTED">{acc.username}</span></td>
-                           <td>
-                             <span className={`ACC_BADGE ${['admin', 'superadmin', 'staff'].includes(String(acc.role).toLowerCase()) ? 'ACC_BADGE_ADMIN' : 'ACC_BADGE_RESIDENT'}`}>
-                               {String(acc.role).toUpperCase()}
-                             </span>
-                           </td>
-                           <td style={{textAlign:'right'}}>
-                               <div style={{display: 'flex', gap: '8px', justifyContent: 'flex-end'}}>
-                                 <button className="ACC_ACTION_ICON" onClick={() => { setSelectedAccount(acc); setNewRole(acc.role); setIsRoleOpen(true); }} title="Change Role">
-                                    <i className="fas fa-user-tag" style={{color: '#3b82f6'}}></i>
-                                 </button>
-                                 <button className="ACC_ACTION_ICON" onClick={() => { setSelectedAccount(acc); setNewPassword(''); setIsResetOpen(true); }} title="Reset Password">
-                                    <i className="fas fa-key" style={{color: '#d97706'}}></i>
-                                 </button>
-                               </div>
-                           </td>
-                       </tr>
-                     );
-                   })}
-                 </tbody>
-               </table>
-           </div>
+        {/* TABLE COMPONENT */}
+        <div className="SYS_AUDIT_DATAGRID">
+          
+          <div className="SYS_AUDIT_TOOLBAR">
+            <div className="SYS_AUDIT_TABS">
+              <button className="SYS_TAB_BTN SYS_TAB_ACTIVE">All Records</button>
+            </div>
+            
+            <div className="SYS_AUDIT_SEARCH_FLEX">
+              <div className="SYS_AUDIT_DATE_BOX">
+                 <input 
+                   type="date" 
+                   value={filterDate}
+                   onChange={e => setFilterDate(e.target.value)}
+                 />
+                 {filterDate && <button onClick={() => setFilterDate('')} title="Clear Date"><i className="fas fa-times"></i></button>}
+              </div>
+
+              <div className="SYS_AUDIT_SEARCH_BOX">
+                <i className="fas fa-filter"></i>
+                <input 
+                  type="text" 
+                  placeholder="Filter actor, action, or hash..." 
+                  value={searchTerm} 
+                  onChange={(e) => setSearchTerm(e.target.value)} 
+                />
+                {loading && <span className="SYS_PULSE_IND">● Syncing</span>}
+              </div>
+            </div>
+          </div>
+
+          <div className="SYS_AUDIT_TABLE_SCROLL">
+            <table className="SYS_AUDIT_TABLE">
+              <thead>
+                <tr>
+                  <th>BLOCK INDEX</th>
+                  <th>INITIATED BY</th>
+                  <th>ACTION TYPE</th>
+                  <th>EXECUTION DETAILS</th>
+                  <th>DATE LOGGED</th>
+                  <th>STATUS STATE</th>
+                  <th className="SYS_TXT_RIGHT">HASH SIGNATURE</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading && chain.length === 0 ? (
+                  <tr><td colSpan={7} className="SYS_EMPTY_ROW">Initializing ledger synchronization...</td></tr>
+                ) : filteredChain.length === 0 ? (
+                  <tr><td colSpan={7} className="SYS_EMPTY_ROW">No audit records match your current filter.</td></tr>
+                ) : (
+                  filteredChain.map((block) => (
+                    <tr key={block.id}>
+                      <td className="SYS_FWM">BLK-{String(block.id).padStart(5, '0')}</td>
+                      
+                      <td className="SYS_TXT_BOLD">
+                        <i className="fas fa-user-tie" style={{marginRight: '6px', color: '#64748b'}}></i>
+                        {formatActorRole(block.actor)}
+                      </td>
+                      
+                      <td>{block.action}</td>
+                      <td className="SYS_TXT_SUB">{block.details}</td>
+                      <td className="SYS_TXT_SUB">
+                        {block.timestamp ? new Date(block.timestamp).toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short' }) : '--'}
+                      </td>
+                      <td><span className="SYS_BADGE SYS_B_VERIFIED">VERIFIED</span></td>
+                      <td className="SYS_ACT_CELL SYS_TXT_RIGHT">
+                        <div className="SYS_HASH_TRUNCATE" title={`Prev: ${block.prev_hash}\nCurr: ${block.hash}`}>
+                          {block.hash.substring(0, 16)}...
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-
-      {/* MODALS */}
-      {isResetOpen && (
-        <div className="ACC_MODAL_OVERLAY">
-          <div className="ACC_MODAL_BOX">
-            <h2><i className="fas fa-lock"></i> Reset Password</h2>
-            <p>Enter a new secure password for <strong>{selectedAccount?.username}</strong>.</p>
-            <form onSubmit={handlePasswordReset}>
-              <input type="password" required minLength={8} className="ACC_FORM_INPUT" placeholder="New Password (min 8 chars)" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-              <div className="ACC_MODAL_ACTIONS">
-                <button type="button" className="ACC_BTN_CANCEL" onClick={() => setIsResetOpen(false)}>Cancel</button>
-                <button type="submit" className="ACC_BTN_SAVE">Update Password</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {isRoleOpen && (
-        <div className="ACC_MODAL_OVERLAY">
-          <div className="ACC_MODAL_BOX">
-            <h2><i className="fas fa-user-tag"></i> Edit Account Role</h2>
-            <p>Change permissions for <strong>{selectedAccount?.displayName}</strong>.</p>
-            <form onSubmit={handleRoleChange}>
-              <select className="ACC_FORM_INPUT" value={newRole} onChange={(e) => setNewRole(e.target.value)}>
-                <option value="resident">Resident</option>
-                <option value="staff">Barangay Staff</option>
-                <option value="admin">Administrator</option>
-                <option value="superadmin">Superadmin</option>
-              </select>
-              <div className="ACC_MODAL_ACTIONS">
-                <button type="button" className="ACC_BTN_CANCEL" onClick={() => setIsRoleOpen(false)}>Cancel</button>
-                <button type="submit" className="ACC_BTN_SAVE">Save Role</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

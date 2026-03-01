@@ -5,7 +5,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  residentName: string; // Already formatted as "Ranni L. Carian" from Dashboard
+  residentName: string; 
   residentId: string;   // This is the record_id (UUID)
 }
 
@@ -44,7 +44,7 @@ export default function Community_Document_Request({ isOpen, onClose, onSuccess,
 
   const selectedDoc = DOCUMENT_TYPES.find(d => d.id === formData.docType) || DOCUMENT_TYPES[0];
   const totalPrice = selectedDoc.price;
-
+  
   // --- FINAL SUBMISSION ---
   const handleFinalSubmit = async () => {
     if (!residentId) return alert("System Error: Account ID missing.");

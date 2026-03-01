@@ -6,6 +6,7 @@ interface IAnnouncement {
   id: string;
   title: string;
   content: string;
+  category: string;
   priority: 'Low' | 'Medium' | 'High';
   status: 'Active' | 'Archived';
   created_at: string;
