@@ -42,7 +42,7 @@ export default function Announcement_modal({ isOpen, onClose, onSuccess, editing
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const API_URL = 'https://sda-0svr.onrender.com/api/announcements';
+  const API_URL = 'http://localhost:8000/api/announcements';
 
   // --- Reset / Load Logic ---
   useEffect(() => {

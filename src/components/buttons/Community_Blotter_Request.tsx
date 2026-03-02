@@ -75,7 +75,11 @@ export default function Community_Blotter_Request({ isOpen, onClose, onSuccess }
 
     try {
       // A. GET LATEST COUNT FOR CASE NUMBER
+<<<<<<< HEAD
       const countRes = await fetch('https://sda-0svr.onrender.com/api/blotter');
+=======
+      const countRes = await fetch('https://sda-0svr.onrender.com');
+>>>>>>> 569dd64801e7a4f013ad81c106dc0704acbed74b
       const blotterList = await countRes.json();
       
       const year = new Date().getFullYear();
@@ -94,7 +98,7 @@ export default function Community_Blotter_Request({ isOpen, onClose, onSuccess }
         time_filed: formData.timeFiled
       };
 
-      const res = await fetch('http://localhost:8000/api/blotter', {
+      const res = await fetch('https://sda-0svr.onrender.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
