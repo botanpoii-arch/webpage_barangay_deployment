@@ -10,7 +10,7 @@ interface Props {
   data: IDocumentData; // Changed from IDocRequest to IDocumentData
 }
 
-const API_URL = 'http://localhost:8000/api/documents';
+const API_URL = 'https://sda-0svr.onrender.com/api/documents';
 
 export default function Document_view({ isOpen, onClose, onUpdate, data }: Props) {
   const [isProcessing, setIsProcessing] = useState(false);

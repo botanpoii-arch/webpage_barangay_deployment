@@ -29,7 +29,7 @@ export default function Household_view({ householdId, onClose }: HouseholdViewPr
   const [household, setHousehold] = useState<IHouseholdDetails | null>(null);
   const [members, setMembers] = useState<IMemberDetails[]>([]);
 
-  const API_BASE = 'http://localhost:8000/api';
+  const API_BASE = 'https://sda-0svr.onrender.com/api';
 
   useEffect(() => {
     const fetchHouseholdData = async () => {
