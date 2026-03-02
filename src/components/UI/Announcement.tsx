@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Announcement_modal from '../buttons/Announcement_modal';
 import './styles/Announcement.css';
 

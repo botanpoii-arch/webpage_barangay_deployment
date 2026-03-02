@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import './styles/Archive.css'; // Dedicated Archive CSS
 
 const API_BASE_URL = 'https://sda-0svr.onrender.com/api';

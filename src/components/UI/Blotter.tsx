@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { FileComponent } from '../buttons/Tools/Blotter_File'; 
 import './styles/Blotter.css';
 

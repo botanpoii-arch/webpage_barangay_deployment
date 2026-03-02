@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import './styles/Community_Document_Request.css';
 
-interface Props {
+// EXPORTED as IDocRequest to fix the import error in Document_view.tsx
+export interface IDocRequest {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
@@ -24,7 +25,7 @@ const PURPOSES = [
   'Other'
 ];
 
-export default function Community_Document_Request({ isOpen, onClose, onSuccess, residentName, residentId }: Props) {
+export default function Community_Document_Request({ isOpen, onClose, onSuccess, residentName, residentId }: IDocRequest) {
   const [step, setStep] = useState<1 | 2 | 3>(1); 
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -78,7 +79,8 @@ export default function Community_Document_Request({ isOpen, onClose, onSuccess,
             const errData = await res.json();
             alert(`Failed: ${errData.error || 'Server error'}`);
         }
-    } catch (err) {
+    } catch (err: unknown) {
+        console.error("Submission error:", err);
         alert('Network error. Ensure the server is online.');
     } finally {
         setIsSubmitting(false);

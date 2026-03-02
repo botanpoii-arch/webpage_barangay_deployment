@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import HouseHold_modal from '../buttons/HouseHold_modal'; 
 import Household_view from '../forms/Household_view'; 
 import './styles/HouseHold.css'; 
@@ -28,7 +28,9 @@ export default function HouseholdPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false); 
   const [selectedHH, setSelectedHH] = useState<string | null>(null); 
-  const [editingHH, setEditingHH] = useState<any>(null); // State for editing
+  
+  // FIX: Removed "any" and applied strict TypeScript generic.
+  const [editingHH, setEditingHH] = useState<Household | null>(null); 
   
   const [activeTab, setActiveTab] = useState('All');
   const [isLoading, setIsLoading] = useState(true);
@@ -37,17 +39,18 @@ export default function HouseholdPage() {
   const [residentList, setResidentList] = useState<Resident[]>([]);
   const [householdList, setHouseholdList] = useState<Household[]>([]);
 
-  const refreshData = useCallback(async () => {
+  // FIX: Added AbortSignal support to handle memory leak prevention
+  const refreshData = useCallback(async (signal?: AbortSignal) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/residents`);
+      const response = await fetch(`${API_BASE_URL}/residents`, { signal });
       if (!response.ok) throw new Error("Failed to fetch residents");
       const rawResidents = await response.json();
 
       const mappedResidents: Resident[] = rawResidents.map((r: any) => ({
         id: r.record_id || r.id,
         fullName: `${r.last_name || r.lastName}, ${r.first_name || r.firstName}`,
-        is4Ps: r.is_4ps || r.is4Ps || false,
+        is4Ps: r.is_4ps === true || r.is4Ps === true,
         monthlyIncome: r.monthly_income || r.monthlyIncome || '0',
         purok: r.purok || 'Unknown'
       }));
@@ -79,15 +82,26 @@ export default function HouseholdPage() {
 
       setHouseholdList(Array.from(householdsMap.values()));
 
-    } catch (error) {
-      console.error("Data Fetch Error:", error);
+    } catch (error: any) {
+      // FIX: Silently catch 'AbortError' caused by unmounting, log real errors
+      if (error.name !== 'AbortError') {
+        console.error("Data Fetch Error:", error);
+      }
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    refreshData();
+    // FIX: Using AbortController to prevent React memory leaks when the component unmounts mid-fetch.
+    const abortController = new AbortController();
+    
+    refreshData(abortController.signal);
+    
+    return () => {
+      // Cleanup function to abort fetch request if component unmounts
+      abortController.abort();
+    };
   }, [refreshData]);
 
   const displayedHouseholds = useMemo(() => {
@@ -167,15 +181,14 @@ export default function HouseholdPage() {
                 ) : displayedHouseholds.length === 0 ? (
                   <tr><td colSpan={5}><div className="HP_EMPTY_CONTAINER" style={{textAlign: 'center', padding: '3rem'}}><i className="fas fa-house-user HP_EMPTY_ICON" style={{fontSize: '3rem', color: '#cbd5e1', marginBottom: '1rem'}}></i><p style={{color: '#64748b'}}>No household records found.</p></div></td></tr>
                 ) : (
-                  displayedHouseholds.map((house, idx) => (
-                    <tr key={house.id || idx} className="HP_TB_ROW" style={{borderBottom: '1px solid #f1f5f9'}}>
+                  displayedHouseholds.map((house) => (
+                    <tr key={house.id} className="HP_TB_ROW" style={{borderBottom: '1px solid #f1f5f9'}}>
                       <td style={{padding: '1rem'}}>
                         <div className="HP_PROFILE_CELL" style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
                           <div className="HP_AVATAR_CIRCLE" style={{width: '40px', height: '40px', background: '#e2e8f0', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#475569'}}>
                             {house.head.charAt(0).toUpperCase()}
                           </div>
                           <div className="HP_NAME_BLOCK">
-                            {/* CLICKABLE NAME: Shows full household information */}
                             <div 
                               className="HP_PRIMARY_NAME" 
                               onClick={() => handleViewDetails(house.id)}
@@ -205,7 +218,6 @@ export default function HouseholdPage() {
                       </td>
                       <td style={{padding: '1rem', textAlign: 'right'}}>
                         <div className="HP_ACTION_CELL_GROUP" style={{display: 'flex', gap: '8px', justifyContent: 'flex-end'}}>
-                          {/* UPDATED ACTION: Edit button */}
                           <button 
                             className="HP_ACTION_ICON_BTN" 
                             title="Edit Household" 
@@ -229,14 +241,15 @@ export default function HouseholdPage() {
           <HouseHold_modal 
             onClose={() => setIsModalOpen(false)} 
             residentList={residentList} 
-            onSaveSuccess={refreshData}
+            onSaveSuccess={() => refreshData()}
+            editingHH={editingHH} 
           />
         )}
 
         {isViewOpen && selectedHH && (
             <Household_view 
                 householdId={selectedHH} 
-                onClose={() => { setIsViewOpen(true); setSelectedHH(null); }} 
+                onClose={() => { setIsViewOpen(false); setSelectedHH(null); }} 
             />
         )}
 

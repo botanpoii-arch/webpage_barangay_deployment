@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, type ChangeEvent, type DragEvent as ReactDragEvent, type MouseEvent as ReactMouseEvent, type FormEvent } from 'react';
 import './styles/Announcement_modal.css';
 
 interface IAnnouncement {
@@ -44,12 +44,14 @@ export default function Announcement_modal({ isOpen, onClose, onSuccess, editing
   const abortControllerRef = useRef<AbortController | null>(null);
   const API_URL = 'https://sda-0svr.onrender.com/api/announcements';
 
-  // --- Reset / Load Logic ---
+  // --- Reset / Load Logic & Memory Leak Prevention ---
   useEffect(() => {
     if (editingItem) {
       setFormData({
         ...editingItem,
-        expires_at: editingItem.expires_at ? new Date(editingItem.expires_at).toISOString().split('T')[0] : formData.expires_at
+        expires_at: editingItem.expires_at 
+          ? new Date(editingItem.expires_at).toISOString().split('T')[0] 
+          : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
       });
       setPreviewImage(editingItem.image_url || null);
     } else {
@@ -63,7 +65,13 @@ export default function Announcement_modal({ isOpen, onClose, onSuccess, editing
       });
       setPreviewImage(null);
     }
-    return () => abortControllerRef.current?.abort();
+
+    // Cleanup function: Abort any pending fetch if the modal closes/unmounts
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [editingItem, isOpen]);
 
   // --- Image Handling Logic ---
@@ -80,26 +88,26 @@ export default function Announcement_modal({ isOpen, onClose, onSuccess, editing
     reader.readAsDataURL(file);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) processFile(file);
   };
 
-  const onDragOver = (e: React.DragEvent) => {
+  const onDragOver = (e: ReactDragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(true);
   };
 
   const onDragLeave = () => setIsDragging(false);
 
-  const onDrop = (e: React.DragEvent) => {
+  const onDrop = (e: ReactDragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
     if (file) processFile(file);
   };
 
-  const removeImage = (e: React.MouseEvent) => {
+  const removeImage = (e: ReactMouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     setPreviewImage(null);
     setFormData(prev => ({ ...prev, image_url: '' }));
@@ -107,13 +115,15 @@ export default function Announcement_modal({ isOpen, onClose, onSuccess, editing
   };
 
   // --- Submission Logic ---
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    
+    // Re-initialize the abort controller for the new request
     abortControllerRef.current = new AbortController();
 
     const method = editingItem ? 'PUT' : 'POST';
-    const url = editingItem ? `${API_URL}/${editingItem.id}` : API_URL;
+    const url = editingItem?.id ? `${API_URL}/${editingItem.id}` : API_URL;
 
     try {
       const res = await fetch(url, {
@@ -130,8 +140,12 @@ export default function Announcement_modal({ isOpen, onClose, onSuccess, editing
         const err = await res.json();
         alert(`Error: ${err.error || "Save failed"}`);
       }
-    } catch (err: any) {
-      if (err.name !== 'AbortError') alert("System offline or network error.");
+    } catch (err: unknown) {
+      // Safely check for AbortError without using 'any'
+      if (err instanceof Error && err.name !== 'AbortError') {
+        alert("System offline or network error.");
+        console.error("Submission error:", err);
+      }
     } finally {
       setIsSubmitting(false);
     }

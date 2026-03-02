@@ -1,11 +1,19 @@
 // src/components/buttons/Community_Blotter_Request.tsx
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import './styles/Community_Blotter_Request.css';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+}
+
+interface ICurrentUser {
+  record_id: string;
+  formattedName: string;
+  first_name?: string;
+  middle_name?: string;
+  last_name?: string;
 }
 
 const BLOTTER_TYPES = [
@@ -22,7 +30,7 @@ const BLOTTER_TYPES = [
 export default function Community_Blotter_Request({ isOpen, onClose, onSuccess }: ModalProps) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<ICurrentUser | null>(null);
 
   const [formData, setFormData] = useState({
     respondent: '',
@@ -102,7 +110,8 @@ export default function Community_Blotter_Request({ isOpen, onClose, onSuccess }
         const err = await res.json();
         alert(`Failed: ${err.error || 'Check database constraints.'}`);
       }
-    } catch (err) {
+    } catch (err: unknown) {
+      console.error("Submission Error:", err);
       alert("Network error. Ensure the backend server is active.");
     } finally {
       setIsSubmitting(false);
@@ -203,11 +212,11 @@ export default function Community_Blotter_Request({ isOpen, onClose, onSuccess }
 
         <div className="CBR_FOOTER">
            {step > 1 && (
-             <button className="CBR_BTN_SECONDARY" onClick={() => setStep(prev => (prev - 1) as any)} disabled={isSubmitting}>Back</button>
+             <button className="CBR_BTN_SECONDARY" onClick={() => setStep(prev => (prev - 1) as 1 | 2 | 3)} disabled={isSubmitting}>Back</button>
            )}
 
            {step < 3 ? (
-             <button className="CBR_BTN_PRIMARY" onClick={() => setStep(prev => (prev + 1) as any)} disabled={!formData.respondent || (step === 2 && !formData.narrative)}>
+             <button className="CBR_BTN_PRIMARY" onClick={() => setStep(prev => (prev + 1) as 1 | 2 | 3)} disabled={!formData.respondent || (step === 2 && !formData.narrative)}>
                Next Step <i className="fas fa-arrow-right"></i>
              </button>
            ) : (

@@ -1,23 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './styles/Household_modal.css'; 
 
-// --- LOCAL INTERFACES (Replaces old GraphQL hook dependency) ---
+// --- LOCAL INTERFACES ---
 export interface HouseholdModalProps {
   onClose: () => void;
-  residentList?: any[]; // Passed from parent if needed, but we fetch directly here
+  residentList?: any[]; 
   onSaveSuccess?: () => void;
+  editingHH?: any; // Added to accept the passed household data
 }
 
 export interface IMemberForm {
-  id: number; // Local UI ID for row mapping
-  member_id: string; // The actual UUID from the database
+  id: number; 
+  member_id: string; 
   name: string;
   relation: string;
   age: string;
 }
 
 export interface IHouseholdForm {
-  head_id: string; // The UUID of the family head
+  head_id: string; 
   headName: string;
   headAge: string;
   addressZone: string;
@@ -40,7 +41,7 @@ const initialHouseholdState: IHouseholdForm = {
 
 // --- INTERNAL INTERFACE FOR DROPDOWNS ---
 interface ISearchableResident {
-  id: string; // Must hold the UUID (record_id)
+  id: string; 
   name: string;
   age: number;
   zone: string;
@@ -83,7 +84,7 @@ const MemberRow = ({ member, onUpdate, onRemove, residents }: {
             onFocus={() => setIsDropdownOpen(true)}
             onChange={(e) => { 
               onUpdate(member.id, 'name', e.target.value); 
-              onUpdate(member.id, 'member_id', ''); // Reset ID if typing manually
+              onUpdate(member.id, 'member_id', ''); 
               setIsDropdownOpen(true); 
             }} 
           />
@@ -91,7 +92,7 @@ const MemberRow = ({ member, onUpdate, onRemove, residents }: {
             <div className="HP_DROP_RESULTS">
               {filtered.slice(0, 5).map(res => (
                 <div key={res.id} className="HP_DROP_ITEM" onClick={() => { 
-                  onUpdate(member.id, 'member_id', res.id); // Captures the UUID
+                  onUpdate(member.id, 'member_id', res.id); 
                   onUpdate(member.id, 'name', res.name); 
                   onUpdate(member.id, 'age', res.age.toString()); 
                   setIsDropdownOpen(false); 
@@ -125,7 +126,7 @@ const MemberRow = ({ member, onUpdate, onRemove, residents }: {
 };
 
 // --- MAIN COMPONENT ---
-function HouseHold_modal({ onClose, onSaveSuccess }: HouseholdModalProps) {
+function HouseHold_modal({ onClose, onSaveSuccess, editingHH }: HouseholdModalProps) {
   const headDropdownRef = useRef<HTMLDivElement>(null);
   const [isHeadDropdownOpen, setIsHeadDropdownOpen] = useState(false);
   
@@ -145,7 +146,6 @@ function HouseHold_modal({ onClose, onSaveSuccess }: HouseholdModalProps) {
         if (!response.ok) throw new Error("Failed to fetch residents");
         const data = await response.json();
 
-        // Ensure we capture the 'record_id' (UUID) properly mapped
         const formatted: ISearchableResident[] = data.map((r: any) => {
           let age = 0;
           if (r.dob || r.dob) {
@@ -155,7 +155,7 @@ function HouseHold_modal({ onClose, onSaveSuccess }: HouseholdModalProps) {
              }
           }
           return {
-            id: r.record_id || r.id, // Extracts the UUID
+            id: r.record_id || r.id, 
             name: `${r.last_name || r.lastName}, ${r.first_name || r.firstName}`,
             age: age,
             zone: r.purok || ""
@@ -170,6 +170,31 @@ function HouseHold_modal({ onClose, onSaveSuccess }: HouseholdModalProps) {
 
     fetchResidents();
   }, []);
+
+  // 2. POPULATE FORM IF EDITING
+  useEffect(() => {
+    if (editingHH) {
+      setFormData(prev => ({
+        ...prev,
+        headName: editingHH.head || '',
+        addressZone: editingHH.zone || '',
+      }));
+    }
+  }, [editingHH]);
+
+  // 3. MATCH HEAD ID ONCE RESIDENTS ARE LOADED
+  useEffect(() => {
+    if (editingHH && residentList.length > 0) {
+      const matchedHead = residentList.find(r => r.name === editingHH.head);
+      if (matchedHead) {
+        setFormData(prev => ({
+          ...prev,
+          head_id: matchedHead.id,
+          headAge: matchedHead.age.toString()
+        }));
+      }
+    }
+  }, [editingHH, residentList]);
 
   const safeHeadName = formData.headName || "";
 
@@ -214,18 +239,18 @@ function HouseHold_modal({ onClose, onSaveSuccess }: HouseholdModalProps) {
     setIsLoading(true);
 
     try {
-      // Structure the payload exactly as the backend HouseholdRouter expects
       const payload = {
         head_id: formData.head_id,
         zone: formData.addressZone || 'Unassigned',
-        // Combines socio-economic inputs into the address/notes column
         address: `Tenure: ${formData.ownership} | Water: ${formData.waterSource} | Toilet: ${formData.toilet}`,
-        // Map members array to only include their UUIDs
         initial_members: formData.members.map(m => m.member_id).filter(id => id !== '')
       };
 
-      const response = await fetch(HOUSEHOLD_API_URL, {
-        method: 'POST',
+      const method = editingHH ? 'PUT' : 'POST';
+      const endpoint = editingHH ? `${HOUSEHOLD_API_URL}/${editingHH.id}` : HOUSEHOLD_API_URL;
+
+      const response = await fetch(endpoint, {
+        method: method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -237,9 +262,6 @@ function HouseHold_modal({ onClose, onSaveSuccess }: HouseholdModalProps) {
         throw new Error(errData.error || `HTTP error! status: ${response.status}`);
       }
 
-      const result = await response.json();
-      console.log("Household Saved:", result);
-      
       if (onSaveSuccess) onSaveSuccess();
       onClose();
 
@@ -255,7 +277,7 @@ function HouseHold_modal({ onClose, onSaveSuccess }: HouseholdModalProps) {
     <div className="HP_MODAL_OVERLAY">
       <div className="HP_MODAL_CARD">
         <div className="HP_MODAL_HEADER">
-          <h2 className="HP_MODAL_TITLE">New Household Profile</h2>
+          <h2 className="HP_MODAL_TITLE">{editingHH ? 'Edit Household Profile' : 'New Household Profile'}</h2>
           <button className="HP_MODAL_CLOSE_X" onClick={onClose}>&times;</button>
         </div>
 
@@ -273,7 +295,7 @@ function HouseHold_modal({ onClose, onSaveSuccess }: HouseholdModalProps) {
                     onFocus={() => setIsHeadDropdownOpen(true)}
                     onChange={(e) => { 
                       updateForm('headName', e.target.value); 
-                      updateForm('head_id', ''); // Clear ID if user starts typing a mismatch
+                      updateForm('head_id', ''); 
                       if (formData.headAge) updateForm('headAge', ''); 
                       if (formData.addressZone) updateForm('addressZone', ''); 
                     }} 
@@ -285,7 +307,7 @@ function HouseHold_modal({ onClose, onSaveSuccess }: HouseholdModalProps) {
                     <div className="HP_DROP_RESULTS">
                       {filteredHead.slice(0, 5).map(res => (
                         <div key={res.id} className="HP_DROP_ITEM" onClick={() => { 
-                          updateForm('head_id', res.id); // Captures the UUID
+                          updateForm('head_id', res.id); 
                           updateForm('headName', res.name);
                           updateForm('headAge', res.age.toString());
                           updateForm('addressZone', res.zone ? res.zone.toString() : ""); 

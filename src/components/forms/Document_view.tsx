@@ -1,22 +1,19 @@
-// 1. Removed 'React' to fix the "value is never read" error
 import { useState } from 'react';
-// 2. Added curly braces (ensure you added 'export' to the interface in the other file)
-import { IDocRequest } from '../buttons/Community_Document_Request'; 
+// Changed import to use IDocumentData from the main page file
+import { type IDocumentData } from '../UI/Document'; 
 import './styles/Document_view.css';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onUpdate: () => void;
-  data: IDocRequest;
+  data: IDocumentData; // Changed from IDocRequest to IDocumentData
 }
 
 const API_URL = 'http://localhost:8000/api/documents';
 
 export default function Document_view({ isOpen, onClose, onUpdate, data }: Props) {
   const [isProcessing, setIsProcessing] = useState(false);
-
-  if (!isOpen) return null;
 
   const updateStatus = async (newStatus: string) => {
     setIsProcessing(true);
@@ -48,6 +45,8 @@ export default function Document_view({ isOpen, onClose, onUpdate, data }: Props
       default: return '#64748b';
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="DOC_VIEW_OVERLAY">

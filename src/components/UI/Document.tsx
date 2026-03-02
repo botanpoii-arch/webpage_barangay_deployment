@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Document_view from '../forms/Document_view'; 
 import Document_modal from '../buttons/Document_modal'; 
 import './styles/Document.css';
 
-export interface IDocRequest {
+// FIX: Renamed this interface to IDocumentData to avoid conflict with the IDocRequest from Community_Document_Request.tsx
+export interface IDocumentData {
   id: string;
   referenceNo: string;
   residentName: string;
@@ -18,12 +19,12 @@ export interface IDocRequest {
 const API_URL = 'https://sda-0svr.onrender.com/api/documents';
 
 export default function DocumentsPage() {
-  const [requests, setRequests] = useState<IDocRequest[]>([]);
+  const [requests, setRequests] = useState<IDocumentData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'Pending' | 'Processing' | 'Ready' | 'History'>('Pending');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDoc, setSelectedDoc] = useState<IDocRequest | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<IDocumentData | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   
@@ -62,9 +63,11 @@ export default function DocumentsPage() {
       }
       prevCountRef.current = mappedData.length;
       setError('');
-    } catch (err: any) {
-      console.error("Fetch Error:", err);
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Fetch Error:", err);
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
