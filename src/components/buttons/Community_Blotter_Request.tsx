@@ -1,3 +1,4 @@
+// src/components/buttons/Community_Blotter_Request.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import './styles/Community_Blotter_Request.css';
 
@@ -23,7 +24,6 @@ export default function Community_Blotter_Request({ isOpen, onClose, onSuccess }
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
-  // --- FORM STATE ---
   const [formData, setFormData] = useState({
     respondent: '',
     purok: 'Purok 1',
@@ -33,7 +33,6 @@ export default function Community_Blotter_Request({ isOpen, onClose, onSuccess }
     narrative: '',
   });
 
-  // --- 1. CORE FORMATTER: "Ranni L. Carian" ---
   const formatToProperName = useCallback((first: string = '', middle: string = '', last: string = '') => {
     const toTitleCase = (str: string) => 
       str.toLowerCase().trim().split(/\s+/).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -45,13 +44,11 @@ export default function Community_Blotter_Request({ isOpen, onClose, onSuccess }
     return `${fName} ${mInit}${lName}`.trim();
   }, []);
 
-  // 2. AUTO-DETECT USER ON OPEN (Aligned with new record_id schema)
   useEffect(() => {
     if (isOpen) {
       const session = localStorage.getItem('resident_session');
       if (session) {
         const parsed = JSON.parse(session);
-        // Supports data.profile from ResidentsRecordRouter or fallback
         const profile = parsed.profile || parsed.residents || parsed; 
         
         const formatted = formatToProperName(
@@ -68,30 +65,23 @@ export default function Community_Blotter_Request({ isOpen, onClose, onSuccess }
 
   if (!isOpen) return null;
 
-  // --- 3. SUBMISSION LOGIC ---
   const handleSubmit = async () => {
     if (!currentUser?.record_id) return alert("System Error: Resident ID missing.");
     setIsSubmitting(true);
 
     try {
-      // A. GET LATEST COUNT FOR CASE NUMBER
-<<<<<<< HEAD
       const countRes = await fetch('https://sda-0svr.onrender.com/api/blotter');
-=======
-      const countRes = await fetch('https://sda-0svr.onrender.com');
->>>>>>> 569dd64801e7a4f013ad81c106dc0704acbed74b
       const blotterList = await countRes.json();
       
       const year = new Date().getFullYear();
       const nextNum = (blotterList.length + 1).toString().padStart(4, '0');
       const generatedCaseNum = `BLTR-${year}-${nextNum}`;
 
-      // B. PREPARE PAYLOAD (Strict snake_case mapping for SQL)
       const payload = {
         case_number: generatedCaseNum,
-        complainant_id: currentUser.record_id, // Aligned to UUID record_id
-        complainant_name: currentUser.formattedName, // Professional format: Ranni L. Carian
-        respondent: formData.respondent.toUpperCase(), // Auto Caplock Respondent
+        complainant_id: currentUser.record_id,
+        complainant_name: currentUser.formattedName,
+        respondent: formData.respondent.toUpperCase(),
         incident_type: formData.type,
         narrative: `[LOCATION: ${formData.purok}] ${formData.narrative}`,
         date_filed: formData.dateFiled,
@@ -123,7 +113,6 @@ export default function Community_Blotter_Request({ isOpen, onClose, onSuccess }
     <div className="CBR_OVERLAY">
       <div className="CBR_MODAL">
         
-        {/* HEADER */}
         <div className="CBR_HEADER">
           <div className="CBR_HEADER_TEXT">
               <h3>File Blotter Report</h3>
@@ -132,12 +121,10 @@ export default function Community_Blotter_Request({ isOpen, onClose, onSuccess }
           <button className="CBR_CLOSE_BTN" onClick={onClose}><i className="fas fa-times"></i></button>
         </div>
 
-        {/* PROGRESS BAR */}
         <div className="CBR_PROGRESS">
            <div className={`CBR_FILL STEP_${step}`}></div>
         </div>
 
-        {/* BODY */}
         <div className="CBR_BODY">
            {step === 1 && (
              <div className="CBR_STEP_CONTENT">
@@ -214,7 +201,6 @@ export default function Community_Blotter_Request({ isOpen, onClose, onSuccess }
            )}
         </div>
 
-        {/* FOOTER */}
         <div className="CBR_FOOTER">
            {step > 1 && (
              <button className="CBR_BTN_SECONDARY" onClick={() => setStep(prev => (prev - 1) as any)} disabled={isSubmitting}>Back</button>
