@@ -5,7 +5,6 @@ import { ResidentModal, type IResident } from '../buttons/Resident_modal';
 export default function ResidentsPage() {
   const [residents, setResidents] = useState<IResident[]>([]);
   const [error, setError] = useState('');
-  const [isSyncing, setIsSyncing] = useState(false);
 
   // UI STATES
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,8 +49,7 @@ export default function ResidentsPage() {
     fourPsIdNumber: res.four_ps_id_number || ''
   });
 
-  const fetchResidents = async (silent = false) => {
-    if (!silent) setIsSyncing(true);
+  const fetchResidents = async () => {
     try {
       const response = await fetch(API_URL);
       if (!response.ok) throw new Error(`Server Error: ${response.status}`);
@@ -66,15 +64,14 @@ export default function ResidentsPage() {
       if (residents.length === 0) {
         setError('Cannot reach server. Ensure Backend (Port 8000) is running.');
       }
-    } finally {
-      setIsSyncing(false);
     }
   };
 
   useEffect(() => {
     fetchResidents(); 
-    const autoLoader = setInterval(() => fetchResidents(true), 300000); 
+    const autoLoader = setInterval(() => fetchResidents(), 300000); 
     return () => clearInterval(autoLoader);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleArchive = async (id: string | undefined) => {
@@ -85,7 +82,7 @@ export default function ResidentsPage() {
       // Uses the record_id mapped to 'id' to hit the backend DELETE route
       const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Delete failed');
-      fetchResidents(true); 
+      fetchResidents(); 
     } catch (err) {
       alert('Failed to archive resident.');
     }
@@ -283,7 +280,7 @@ export default function ResidentsPage() {
                 isOpen={isModalOpen} 
                 residentData={selectedResident} 
                 onClose={() => { setIsModalOpen(false); setSelectedResident(null); }} 
-                onSuccess={() => fetchResidents(true)} 
+                onSuccess={() => fetchResidents()} 
             />
         )}
       </div>
