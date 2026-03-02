@@ -1,4 +1,3 @@
-import React from 'react';
 import './styles/Resident_view.css'; 
 
 interface IResident {

@@ -1,4 +1,3 @@
-import React from 'react';
 import './styles/Document_modal.css';
 import { Document_File } from './Tools/Document_tools/Document_Files'; 
 

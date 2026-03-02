@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import './styles/Resident.css'; 
 import { ResidentModal, type IResident } from '../buttons/Resident_modal'; 
 
