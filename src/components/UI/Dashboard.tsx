@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+// src/components/UI/Dashboard.tsx
+import { useState, useEffect, useCallback, } from 'react';
 import Profile from './Profile'; 
 import HouseholdPage from './Household'; 
 import ResidentsPage from './Resident'; 
@@ -11,6 +12,7 @@ import AccountManagementPage from './Account_Management';
 import ArchivePage from './Archive'; 
 
 // Import Styles
+// Note: If you still get a "Could not resolve" error, ensure Frame.css is in src/components/UI/styles/
 import './styles/Frame.css';      
 import './styles/Dashboard.css';  
 
@@ -41,6 +43,12 @@ export interface IDocRequest {
   status: string;
 }
 
+interface UserProfile {
+  formattedName?: string;
+  username?: string;
+  role?: string;
+}
+
 const initialDashboardData: DashboardData = {
   stats: {
     totalPopulation: 0,
@@ -62,23 +70,17 @@ interface DashboardHomeProps {
 
 const DashboardHome: React.FC<DashboardHomeProps> = ({ data, loading, onNavigate }) => {
   const [pendingDocs, setPendingDocs] = useState<IDocRequest[]>([]);
-  const [totalPending, setTotalPending] = useState(0); // Tracks actual total
+  const [totalPending, setTotalPending] = useState(0); 
   const [pendingLoading, setPendingLoading] = useState(true);
 
-  // FULL SYNC LOGIC: Fetches all docs, filters perfectly
-  const fetchPending = useCallback(async (controller?: AbortController) => {
+  const fetchPending = useCallback(async (signal?: AbortSignal) => {
     try {
-      const res = await fetch(`${API_BASE}/documents`, { 
-        signal: controller?.signal 
-      });
+      const res = await fetch(`${API_BASE}/documents`, { signal });
       if (res.ok) {
         const docs = await res.json();
-        
-        // 1. Filter ALL pending items globally
         const allPending = docs.filter((d: any) => d.status === 'Pending');
-        setTotalPending(allPending.length); // Update the red badge accurately
+        setTotalPending(allPending.length);
 
-        // 2. Sort newest first, then take top 5 for the UI list
         const top5Pending = allPending
           .sort((a: any, b: any) => {
              const dateA = new Date(a.date_requested || a.dateRequested || 0).getTime();
@@ -87,7 +89,6 @@ const DashboardHome: React.FC<DashboardHomeProps> = ({ data, loading, onNavigate
           })
           .slice(0, 5); 
         
-        // 3. Map safely to state
         setPendingDocs(top5Pending.map((d: any) => ({
           id: d.id,
           referenceNo: d.reference_no || d.referenceNo || 'N/A',
@@ -106,9 +107,8 @@ const DashboardHome: React.FC<DashboardHomeProps> = ({ data, loading, onNavigate
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchPending(controller);
+    fetchPending(controller.signal);
     
-    // Auto-refresh every 15s
     const interval = setInterval(() => fetchPending(), 15000); 
     return () => { 
       controller.abort(); 
@@ -133,7 +133,6 @@ const DashboardHome: React.FC<DashboardHomeProps> = ({ data, loading, onNavigate
         </p>
       </header>
 
-      {/* KPI CARDS */}
       <section className="DS_STATS_GRID">
         {stats.map((stat, i) => (
           <div key={i} className="DS_CARD" onClick={() => onNavigate(stat.targetTab)} style={{ cursor: 'pointer' }}>
@@ -154,7 +153,6 @@ const DashboardHome: React.FC<DashboardHomeProps> = ({ data, loading, onNavigate
       </section>
 
       <div className="DS_BOTTOM_GRID">
-        {/* MAP WIDGET */}
         <div className="DS_SECTION_BOX">
           <div className="DS_SECTION_HEADER">
             <h3><i className="fas fa-map-marked-alt"></i> Barangay Map</h3>
@@ -162,7 +160,7 @@ const DashboardHome: React.FC<DashboardHomeProps> = ({ data, loading, onNavigate
           <div className="DS_MAP_VIEW" style={{ padding: 0, overflow: 'hidden', height: '400px' }}>
             <iframe
               title="Barangay Engineers Hill Map"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3827.4253308892976!2d120.60060961486333!3d16.402324988673733!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3391a1687d000001%3A0x6b2e04db7df02c0!2sEngineer's%20Hill%20Barangay%20Hall!5e0!3m2!1sen!2sph!4v1700000000000!5m2!1sen!2sph"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3827.123!2d120.596!3d16.412!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3391a168!2sEngineers%20Hill%2C%20Baguio!5e0!3m2!1sen!2sph!4v1700000000000"
               width="100%"
               height="100%"
               style={{ border: 0 }}
@@ -173,7 +171,6 @@ const DashboardHome: React.FC<DashboardHomeProps> = ({ data, loading, onNavigate
           </div>
         </div>
 
-        {/* RESTORED: PENDING REQUESTS WIDGET */}
         <div className="DS_SECTION_BOX">
           <div className="DS_SECTION_HEADER" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3><i className="fas fa-clipboard-check"></i> Pending Requests</h3>
@@ -232,9 +229,9 @@ const PlaceholderPage: React.FC<{ title: string, icon: string }> = ({ title, ico
   <div className="DS_CONTAINER">
     <div className="DS_SECTION_BOX">
       <div className="DS_PLACEHOLDER_CONTENT">
-        <i className={icon} style={{ fontSize: '4rem', marginBottom: '1rem', color: 'var(--DS-text-secondary)' }}></i>
-        <h2 style={{ color: 'var(--DS-text-primary)' }}>{title} Module</h2>
-        <p style={{ color: 'var(--DS-text-secondary)' }}>This section is currently under development.</p>
+        <i className={icon} style={{ fontSize: '4rem', marginBottom: '1rem', color: '#64748b' }}></i>
+        <h2 style={{ color: '#1e293b' }}>{title} Module</h2>
+        <p style={{ color: '#64748b' }}>This section is currently under development.</p>
       </div>
     </div>
   </div>
@@ -243,14 +240,13 @@ const PlaceholderPage: React.FC<{ title: string, icon: string }> = ({ title, ico
 // --- 3. MAIN DASHBOARD (FRAME + LOGIC) ---
 interface DashboardProps {
   onLogout: () => void;
-  user: any; 
+  user: UserProfile | null; 
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ onLogout, user }) => {
   const [data, setData] = useState<DashboardData>(initialDashboardData);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // --- PERSISTENCE ---
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem('admin_active_tab') || 'Dashboard';
   });
@@ -259,9 +255,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, user }) => {
     localStorage.setItem('admin_active_tab', activeTab);
   }, [activeTab]);
 
-  const fetchStats = useCallback(async (controller?: AbortController) => {
+  const fetchStats = useCallback(async (signal?: AbortSignal) => {
     try {
-      const res = await fetch(`${API_BASE}/stats`, { signal: controller?.signal });
+      const res = await fetch(`${API_BASE}/stats`, { signal });
       if (!res.ok) throw new Error("Stats sync failed");
       const realData = await res.json();
       
@@ -285,7 +281,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, user }) => {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchStats(controller);
+    fetchStats(controller.signal);
     const interval = setInterval(() => fetchStats(), 30000); 
     return () => { 
       controller.abort(); 
@@ -293,7 +289,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, user }) => {
     };
   }, [fetchStats]);
 
-  // --- NAVIGATION CONFIG ---
   const menuItems = [
     { name: 'Dashboard', icon: 'fas fa-th-large' },
     { name: 'Announcements', icon: 'fas fa-bullhorn' },
