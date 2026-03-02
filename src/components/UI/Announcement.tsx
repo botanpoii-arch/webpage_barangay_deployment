@@ -15,7 +15,7 @@ interface IAnnouncement {
   image_url?: string;
 }
 
-const API_URL = 'http://localhost:8000/api/announcements';
+const API_URL = 'https://sda-0svr.onrender.com/api/announcements';
 
 export default function AnnouncementPage() {
   const [announcements, setAnnouncements] = useState<IAnnouncement[]>([]);

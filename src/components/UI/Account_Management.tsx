@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './styles/Account_Management.css'; 
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'https://sda-0svr.onrender.com/api';
 
 interface IAccount {
   account_id?: string; 

@@ -4,7 +4,7 @@ import Household_view from '../forms/Household_view';
 import './styles/HouseHold.css'; 
 
 // --- CONSTANTS ---
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'https://sda-0svr.onrender.com/api';
 
 // --- INTERFACES ---
 export interface Resident {

@@ -15,7 +15,7 @@ export interface IDocRequest {
   price: number;
 }
 
-const API_URL = 'http://localhost:8000/api/documents';
+const API_URL = 'https://sda-0svr.onrender.com/api/documents';
 
 export default function DocumentsPage() {
   const [requests, setRequests] = useState<IDocRequest[]>([]);

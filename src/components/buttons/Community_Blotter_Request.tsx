@@ -75,7 +75,7 @@ export default function Community_Blotter_Request({ isOpen, onClose, onSuccess }
 
     try {
       // A. GET LATEST COUNT FOR CASE NUMBER
-      const countRes = await fetch('http://localhost:8000/api/blotter');
+      const countRes = await fetch('https://sda-0svr.onrender.com/api/blotter');
       const blotterList = await countRes.json();
       
       const year = new Date().getFullYear();

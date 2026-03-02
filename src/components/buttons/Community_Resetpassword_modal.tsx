@@ -13,7 +13,7 @@ const CommunityResetPasswordModal: React.FC<ResetProps> = ({ isOpen, resident, o
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const API_BASE = 'http://localhost:8000/api';
+  const API_BASE = 'https://sda-0svr.onrender.com/api';
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();

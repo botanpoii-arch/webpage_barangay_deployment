@@ -20,7 +20,7 @@ export default function OfficialsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [officialToEdit, setOfficialToEdit] = useState<IOfficial | null>(null);
 
-  const API_URL = 'http://localhost:8000/api/officials';
+  const API_URL = 'https://sda-0svr.onrender.com/api/officials';
 
   const fetchOfficials = async () => {
     setLoading(true);

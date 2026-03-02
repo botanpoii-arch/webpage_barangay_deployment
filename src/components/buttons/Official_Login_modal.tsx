@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './styles/Login_modal.css';
 
 // Using your local API directly instead of the external model
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'https://sda-0svr.onrender.com/api';
 
 interface LoginModalProps {
   onClose: () => void;

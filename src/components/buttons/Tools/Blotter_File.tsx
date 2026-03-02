@@ -76,8 +76,8 @@ export const FileComponent: React.FC<IFileProps> = ({ onClose, onRefresh, select
     const fetchData = async () => {
       try {
         const [resRes, resOff] = await Promise.all([
-          fetch('http://localhost:8000/api/residents'),
-          fetch('http://localhost:8000/api/officials')
+          fetch('https://sda-0svr.onrender.com/api/residents'),
+          fetch('https://sda-0svr.onrender.com/api/officials')
         ]);
 
         if (resRes.ok) {
@@ -142,7 +142,7 @@ export const FileComponent: React.FC<IFileProps> = ({ onClose, onRefresh, select
     };
 
     try {
-      const res = await fetch(`http://localhost:8000/api/blotter${formData.id ? `/${formData.id}` : ''}`, {
+      const res = await fetch(`https://sda-0svr.onrender.com/api/blotter${formData.id ? `/${formData.id}` : ''}`, {
         method: formData.id ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(submissionData),

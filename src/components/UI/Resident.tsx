@@ -13,7 +13,7 @@ export default function ResidentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedResident, setSelectedResident] = useState<IResident | null>(null);
 
-  const API_URL = 'http://localhost:8000/api/residents';
+  const API_URL = 'https://sda-0svr.onrender.com/api/residents';
 
   // STRICT MAPPING: Aligns the new backend (residents_records) to the React Frontend
   const mapResident = (res: any): IResident => ({

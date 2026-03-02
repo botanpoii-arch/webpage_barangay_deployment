@@ -14,7 +14,7 @@ export const CommunityLoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose
   const [loading, setLoading] = useState(false);
   const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
 
-  const API_BASE = 'http://localhost:8000/api';
+  const API_BASE = 'https://sda-0svr.onrender.com/api';
 
   // --- DEVICE FINGERPRINTING ---
   const getFingerprint = useCallback(() => {

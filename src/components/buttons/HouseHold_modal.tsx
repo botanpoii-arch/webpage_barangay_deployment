@@ -134,8 +134,8 @@ function HouseHold_modal({ onClose, onSaveSuccess }: HouseholdModalProps) {
   
   const [residentList, setResidentList] = useState<ISearchableResident[]>([]);
 
-  const HOUSEHOLD_API_URL = 'http://localhost:8000/api/households';
-  const RESIDENTS_API_URL = 'http://localhost:8000/api/residents';
+  const HOUSEHOLD_API_URL = 'https://sda-0svr.onrender.com/api/households';
+  const RESIDENTS_API_URL = 'https://sda-0svr.onrender.com/api/residents';
 
   // 1. FETCH RESIDENTS ON MOUNT
   useEffect(() => {

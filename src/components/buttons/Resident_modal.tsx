@@ -58,7 +58,7 @@ export const ResidentModal: React.FC<ResidentModalProps> = ({
 }) => {
   const [formData, setFormData] = useState<IResident>(initialState);
   const [isLoading, setIsLoading] = useState(false);
-  const API_URL = 'http://localhost:8000/api/residents';
+  const API_URL = 'https://sda-0svr.onrender.com/api/residents';
 
   useEffect(() => {
     if (isOpen) {

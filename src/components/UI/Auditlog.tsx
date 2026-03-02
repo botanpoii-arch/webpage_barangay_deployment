@@ -12,7 +12,7 @@ interface IBlock {
   prev_hash: string;
 }
 
-const API_URL = 'http://localhost:8000/api/audit';
+const API_URL = 'https://sda-0svr.onrender.com/api/audit';
 
 export default function AuditLogPage() {
   const [chain, setChain] = useState<IBlock[]>([]);

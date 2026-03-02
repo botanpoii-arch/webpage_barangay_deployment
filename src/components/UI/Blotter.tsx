@@ -47,7 +47,7 @@ export default function BlotterPage() {
     reason: ''
   });
 
-  const API_URL = 'http://localhost:8000/api/blotter'; 
+  const API_URL = 'https://sda-0svr.onrender.com/api/blotter'; 
 
   // 1. FETCH FUNCTION 
   const fetchCases = async (silent = false) => {

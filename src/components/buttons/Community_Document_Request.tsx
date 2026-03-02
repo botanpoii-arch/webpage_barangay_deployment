@@ -64,7 +64,7 @@ export default function Community_Document_Request({ isOpen, onClose, onSuccess,
     };
 
     try {
-        const res = await fetch('http://localhost:8000/api/documents/save', {
+        const res = await fetch('https://sda-0svr.onrender.com/api/documents/save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)

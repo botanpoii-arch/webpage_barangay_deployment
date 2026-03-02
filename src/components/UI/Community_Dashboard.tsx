@@ -31,7 +31,7 @@ const Community_Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const [showBlotterModal, setShowBlotterModal] = useState(false);
   const [showDocModal, setShowDocModal] = useState(false); 
 
-  const API_BASE = 'http://localhost:8000/api'; 
+  const API_BASE = 'https://sda-0svr.onrender.com/api'; 
 
   // --- 1. CORE FORMATTER: "Ranni L. Carian" ---
   const formatToProperName = useCallback((first: string = '', middle: string = '', last: string = '') => {

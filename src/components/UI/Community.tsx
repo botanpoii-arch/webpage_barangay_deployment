@@ -8,7 +8,7 @@ interface CommunityProps {
   onLoginSuccess?: (user: any) => void;
 }
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = 'https://sda-0svr.onrender.com/api';
 
 const Community: React.FC<CommunityProps> = ({ onExit, onLoginSuccess }) => {
   const [activeFilter, setActiveFilter] = useState('All');

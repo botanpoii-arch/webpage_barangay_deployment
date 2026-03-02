@@ -52,8 +52,8 @@ export default function Officials_modal({ isOpen, onClose, onSuccess, officialTo
     contact_number: ''
   });
 
-  const API_OFFICIALS = 'http://localhost:8000/api/officials';
-  const API_RESIDENTS = 'http://localhost:8000/api/residents';
+  const API_OFFICIALS = 'https://sda-0svr.onrender.com/api/officials';
+  const API_RESIDENTS = 'https://sda-0svr.onrender.com/api/residents';
 
   // 1. FETCH RESIDENTS (For Search)
   useEffect(() => {

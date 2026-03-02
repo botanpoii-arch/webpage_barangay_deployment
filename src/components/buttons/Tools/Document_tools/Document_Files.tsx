@@ -87,7 +87,7 @@ export const Document_File: React.FC<FileProps> = ({ onClose, onSuccess, data })
   useEffect(() => {
     const fetchResidents = async () => {
       try {
-        const res = await fetch('http://localhost:8000/api/residents');
+        const res = await fetch('https://sda-0svr.onrender.com/api/residents');
         if (res.ok) {
           const result = await res.json();
           setResidents(Array.isArray(result) ? result : []);
@@ -99,7 +99,7 @@ export const Document_File: React.FC<FileProps> = ({ onClose, onSuccess, data })
 
     const fetchCaptain = async () => {
       try {
-        const res = await fetch('http://localhost:8000/api/officials');
+        const res = await fetch('https://sda-0svr.onrender.com/api/officials');
         if (res.ok) {
           const officialsData: IOfficial[] = await res.json();
           const activeCaptain = officialsData.find(o => o.position === 'Barangay Captain' && o.status === 'Active');
@@ -233,7 +233,7 @@ export const Document_File: React.FC<FileProps> = ({ onClose, onSuccess, data })
       const pdfSuccess = await generatePerfectPDF();
       if (!pdfSuccess) throw new Error("Failed to generate PDF file.");
 
-      const res = await fetch('http://localhost:8000/api/documents/save', {
+      const res = await fetch('https://sda-0svr.onrender.com/api/documents/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dbPayload)

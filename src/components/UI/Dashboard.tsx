@@ -15,7 +15,7 @@ import './styles/Frame.css';
 import './styles/Dashboard.css';  
 
 // --- CONSTANTS ---
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = 'https://sda-0svr.onrender.com/api';
 
 // --- INTERFACES ---
 export interface DashboardStats {
